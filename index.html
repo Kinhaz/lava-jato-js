@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lava Jato</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      color: #1a1a1a;
+    }
+
+    .app {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 1.5rem;
+    }
+
+    .header-icon {
+      width: 42px;
+      height: 42px;
+      background: #1a73e8;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .header-icon svg {
+      width: 22px;
+      height: 22px;
+      stroke: #fff;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .header p {
+      font-size: 13px;
+      color: #666;
+      margin-top: 1px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e4e7ec;
+      border-radius: 14px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 1rem;
+    }
+
+    .field {
+      margin-bottom: 0.75rem;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 1px solid #dde1e7;
+      border-radius: 8px;
+      background: #f9fafb;
+      color: #1a1a1a;
+      outline: none;
+      appearance: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    input[type="text"]:focus,
+    select:focus {
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.12);
+      background: #fff;
+    }
+
+    .error {
+      font-size: 12px;
+      color: #c0392b;
+      margin-top: 8px;
+      display: none;
+    }
+
+    .btn-add {
+      width: 100%;
+      padding: 11px;
+      font-size: 14px;
+      font-weight: 700;
+      background: #1a73e8;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .btn-add:hover { background: #1558b0; }
+    .btn-add:active { transform: scale(0.99); }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .stat {
+      background: #fff;
+      border: 1px solid #e4e7ec;
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+    }
+
+    .stat-val {
+      font-size: 26px;
+      font-weight: 700;
+      color: #1a1a1a;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .list-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #444;
+    }
+
+    .btn-clear {
+      font-size: 12px;
+      color: #c0392b;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: background 0.15s;
+    }
+
+    .btn-clear:hover { background: #fdecea; }
+
+    .empty {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: #aaa;
+      font-size: 14px;
+      background: #fff;
+      border: 1px solid #e4e7ec;
+      border-radius: 14px;
+    }
+
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: #fff;
+      border: 1px solid #e4e7ec;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      transition: border-color 0.15s;
+    }
+
+    .item:hover { border-color: #c5d3e8; }
+
+    .item-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #f0f2f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #666;
+      flex-shrink: 0;
+    }
+
+    .item-info { flex: 1; min-width: 0; }
+
+    .item-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .item-service { margin-top: 3px; }
+
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 9px;
+      border-radius: 20px;
+    }
+
+    .badge-simples  { background: #f0f2f5; color: #555; }
+    .badge-completa { background: #e8f0fe; color: #1558b0; }
+    .badge-cera     { background: #fef7e0; color: #8a5d00; }
+
+    .btn-remove {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1px solid #e4e7ec;
+      background: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: #aaa;
+      transition: all 0.15s;
+    }
+
+    .btn-remove:hover {
+      background: #fdecea;
+      border-color: #f5a8a3;
+      color: #c0392b;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+
+    <div class="header">
+      <div class="header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 17H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2z"/>
+          <circle cx="7.5" cy="17" r="1.5"/>
+          <circle cx="16.5" cy="17" r="1.5"/>
+          <path d="M5 9l2-4h10l2 4"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Lava Jato</h1>
+        <p>Controle de atendimentos</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Novo atendimento</div>
+      <div class="field">
+        <label for="cliente">Cliente</label>
+        <input type="text" id="cliente" placeholder="Nome do cliente" onkeydown="if(event.key==='Enter') adicionar()">
+      </div>
+      <div class="field">
+        <label for="servico">Serviço</label>
+        <select id="servico">
+          <option value="">Selecione o serviço</option>
+          <option value="Lavagem Simples">Lavagem Simples</option>
+          <option value="Lavagem Completa">Lavagem Completa</option>
+          <option value="Com Cera">Com Cera</option>
+        </select>
+      </div>
+      <div class="error" id="erro">Preencha todos os campos para continuar.</div>
+      <button class="btn-add" onclick="adicionar()">Adicionar atendimento</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-val" id="total">0</div>
+        <div class="stat-label">Carros hoje</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" id="ultimo">—</div>
+        <div class="stat-label">Último serviço</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="list-header">
+        <span class="list-title">Fila de atendimentos</span>
+        <button class="btn-clear" onclick="limparTudo()">Limpar tudo</button>
+      </div>
+      <div id="lista"></div>
+    </div>
+
+  </div>
+
+  <script>
+    let atendimentos = JSON.parse(localStorage.getItem("atendimentos") || "[]");
+
+    const badgeClass = {
+      "Lavagem Simples": "badge-simples",
+      "Lavagem Completa": "badge-completa",
+      "Com Cera": "badge-cera"
+    };
+
+    function salvar() {
+      localStorage.setItem("atendimentos", JSON.stringify(atendimentos));
+    }
+
+    function renderizar() {
+      const lista = document.getElementById("lista");
+      const total = document.getElementById("total");
+      const ultimo = document.getElementById("ultimo");
+
+      total.textContent = atendimentos.length;
+      ultimo.textContent = atendimentos.length
+        ? atendimentos[atendimentos.length - 1].servico.split(" ")[0]
+        : "—";
+
+      if (!atendimentos.length) {
+        lista.innerHTML = '<div class="empty">Nenhum atendimento registrado ainda.</div>';
+        return;
+      }
+
+      lista.innerHTML = atendimentos.map((item, i) => `
+        <div class="item">
+          <div class="item-num">${i + 1}</div>
+          <div class="item-info">
+            <div class="item-name">${item.cliente}</div>
+            <div class="item-service">
+              <span class="badge ${badgeClass[item.servico] || 'badge-simples'}">${item.servico}</span>
+            </div>
+          </div>
+          <button class="btn-remove" onclick="remover(${i})" title="Remover">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      `).join("");
+    }
+
+    function adicionar() {
+      const cliente = document.getElementById("cliente").value.trim();
+      const servico = document.getElementById("servico").value;
+      const erro = document.getElementById("erro");
+
+      if (!cliente || !servico) {
+        erro.style.display = "block";
+        return;
+      }
+
+      erro.style.display = "none";
+      atendimentos.push({ cliente, servico });
+      salvar();
+      renderizar();
+
+      document.getElementById("cliente").value = "";
+      document.getElementById("servico").value = "";
+      document.getElementById("cliente").focus();
+    }
+
+    function remover(i) {
+      atendimentos.splice(i, 1);
+      salvar();
+      renderizar();
+    }
+
+    function limparTudo() {
+      if (atendimentos.length && confirm("Limpar todos os atendimentos?")) {
+        atendimentos = [];
+        salvar();
+        renderizar();
+      }
+    }
+
+    renderizar();
+  </script>
+
+</body>
+</html>
